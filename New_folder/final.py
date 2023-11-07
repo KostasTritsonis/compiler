@@ -20,7 +20,6 @@ def block():
     
     
     for i in instructions:
-        print()
         if lines != None:
             lines -=1
             if lines == 0:
@@ -70,7 +69,7 @@ def checkString(string):
         
 def printTable():
     print('-')
-    for key, value in results.items():
+    for key, value in commands.items():
         print(key, ":", value)
         
  
@@ -79,6 +78,7 @@ def checkBreakpoint():
     global lines,breakpoint
     
     if breakpoint != 'None':
+        print(breakpoint)
         breakpoint = int(breakpoint)
         lines = breakpoint+1
     else:
