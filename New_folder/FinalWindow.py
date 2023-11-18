@@ -21,15 +21,16 @@ class FinalWindow(QMainWindow):
         self.label.move((self.textEdit.width() // 2),10)
         
     def readfile(self):
-        script_path  = "python -u {compiler} {current_path} None".format(compiler='final.py',current_path='intFile.int',line=breakpoint)
+        script_path  = "python -u {compiler} None".format(compiler='final.py',line=breakpoint)
         self.p = subprocess.Popen(script_path, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, bufsize=1)
         text = ''
         while self.p.poll() is None:
             self.show()
             line = self.p.stdout.readline().strip()
             if line:
-                if 'Give input:' in line:
-                    self.giveInput()
+                if 'Give input' in line:
+                    print(1)
+                    self.giveInput(line)
                     self.p.stdin.write(inputValue + "\n")
                     self.p.stdin.flush()
                 else:
@@ -37,11 +38,13 @@ class FinalWindow(QMainWindow):
             self.textEdit.setText(text)
         self.p.stdin.close()
         
-    def giveInput(self):
+    def giveInput(self,line):
         dialog = InputWindow()
+        dialog.label.setText(line)
         dialog.dataPassed.connect(self.setInputValue)
         dialog.exec()  
         
     def setInputValue(self,data):
         global inputValue
         inputValue = data
+
