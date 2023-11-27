@@ -28,6 +28,7 @@ class Ui_Dialog(object):
 "color:#FFFFFF;\n"
 "}\n"
 "")
+<<<<<<< HEAD
         self.lineEdit = QLineEdit(Dialog)
         self.lineEdit.setObjectName(u"lineEdit")
         self.lineEdit.setGeometry(QRect(160, 40, 113, 21))
@@ -38,6 +39,17 @@ class Ui_Dialog(object):
         self.pushButton.setObjectName(u"pushButton")
         self.pushButton.setGeometry(QRect(160, 100, 75, 24))
         self.pushButton.setStyleSheet(u"background-color: rgb(255, 255, 255);\n"
+=======
+        self.lineEdit = QtWidgets.QLineEdit(parent=Dialog)
+        self.lineEdit.setGeometry(QtCore.QRect(160, 40, 113, 21))
+        self.lineEdit.setObjectName("lineEdit")
+        self.label = QtWidgets.QLabel(parent=Dialog)
+        self.label.setGeometry(QtCore.QRect(20, 40, 131, 20))
+        self.label.setObjectName("label")
+        self.pushButton = QtWidgets.QPushButton(parent=Dialog)
+        self.pushButton.setGeometry(QtCore.QRect(160, 100, 75, 24))
+        self.pushButton.setStyleSheet("background-color: rgb(255, 255, 255);\n"
+>>>>>>> 6edfa352b240fa2da6ce0937ea1a825777de6eb8
 "color: rgb(0, 0, 0);")
 
         self.retranslateUi(Dialog)
