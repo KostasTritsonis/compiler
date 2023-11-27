@@ -45,23 +45,11 @@ def readTable(number):
     
     
 def block():
-<<<<<<< HEAD
-    global instructions,lines,commands,numpass
-    numpass = -1
-    for i in instructions:
-<<<<<<< HEAD
-=======
-        
-        if i[0] == 'halt':
-=======
     global instructions,lines
     i=0
     while  i < len(instructions):
         if instructions[i][0] == 'halt':
->>>>>>> b1
             break  
-        
->>>>>>> 6edfa352b240fa2da6ce0937ea1a825777de6eb8
         if lines != None:
             lines -=1
             if lines == 0:
