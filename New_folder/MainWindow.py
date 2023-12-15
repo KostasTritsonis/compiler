@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import  QMainWindow, QFileDialog,QApplication
-from PyQt6.QtCore import Qt,QProcess
+from PyQt6.QtCore import Qt
 from PyQt6 import QtGui
 from PyQt6.uic import loadUi
 from IntermidiateWindow import *
@@ -12,9 +12,9 @@ class MainWindow(QMainWindow):
         super(MainWindow,self).__init__()
         loadUi("MainWindow.ui",self)
 
-        self.current_path = None
+        self.currentPath = None
         self.compiler = None
-        self.number_line()
+        self.numberLine()
         self.init()
         self.textEdit.setPlaceholderText("Type your text here...")
         self.setWindowIcon(QtGui.QIcon('compiler.png'))
@@ -34,39 +34,39 @@ class MainWindow(QMainWindow):
     def newFile(self):
         self.textEdit.clear()
         self.setWindowTitle("Untitled")
-        self.current_path = None
+        self.currentPath = None
 
     def saveFile(self):
-        if self.current_path is not None:
-            with open(self.current_path, 'w') as f:
-                f.write(self.textEdit.toPlainText())
+        if self.currentPath is not None:
+            with open(self.currentPath, 'w') as file:
+                file.write(self.textEdit.toPlainText())
         else:
             self.saveFileAs()
 
     def saveFileAs(self):
-        pathname = QFileDialog.getSaveFileName(self, 'Save file', '', 'Cimple files(*.ci)')
-        if(pathname[0]!=""):
-            with open(pathname[0], 'w') as f:
-                f.write(self.textEdit.toPlainText())
-            self.current_path = pathname[0]
-            self.setWindowTitle(pathname[0])
+        pathName = QFileDialog.getSaveFileName(self, 'Save file', '', 'Cimple files(*.ci)')
+        if(pathName[0]!=""):
+            with open(pathName[0], 'w') as file:
+                file.write(self.textEdit.toPlainText())
+            self.currentPath = pathName[0]
+            self.setWindowTitle(pathName[0])
         else:
             return
 
     def openFile(self):
-        fname = QFileDialog.getOpenFileName(self, 'Open file','', 'Cimple files(*.ci)')
-        if(fname[0]!=""):
-            self.setWindowTitle(fname[0])
-            with open(fname[0], 'r') as f:
-                filetext = f.read()
-                self.textEdit.setText(filetext)
-            self.current_path = fname[0]
+        fileName = QFileDialog.getOpenFileName(self, 'Open file','', 'Cimple files(*.ci)')
+        if(fileName[0]!=""):
+            self.setWindowTitle(fileName[0])
+            with open(fileName[0], 'r') as file:
+                fileText = file.read()
+                self.textEdit.setText(fileText)
+            self.currentPath = fileName[0]
         else:
             return
         
     def selectCompiler(self):
-        fname = QFileDialog.getOpenFileName(self, 'Choose Compiler','', 'Python files (*.py)')
-        self.compiler = fname[0]
+        fileName = QFileDialog.getOpenFileName(self, 'Choose Compiler','', 'Python files (*.py)')
+        self.compiler = fileName[0]
 
     def undo(self):
         self.textEdit.undo()
@@ -84,57 +84,45 @@ class MainWindow(QMainWindow):
         self.textEdit.paste()
 
     def compile(self):
-        self.p = QProcess()
         if self.compiler == '' or self.compiler == None :
-            self.win2 = ErrorWindow()
-            self.win2.show()
-            self.win2.label.setText("Choose Compiler first")
-            self.win2.setWindowTitle("Error Window")  
-            return
-        script_path  = "python {compiler} {current_path}".format(current_path=self.current_path,compiler=self.compiler)
-        self.p.startCommand(script_path)
-        if(self.p.waitForFinished() == False):
-            return
-        output = self.p.readAllStandardOutput().data().decode()
-        error = self.p.exitCode()
-        if error == 1:
-            self.err = ErrorWindow()
-            self.err.show()
-            self.err.label.setText(output)
-            self.err.setWindowTitle("Error Window")  
+            self.ErrWindow = ErrorWindow()
+            self.ErrWindow.show()
+            self.ErrWindow.label.setText("Choose Compiler first")
+            self.ErrWindow.setWindowTitle("Error Window") 
         else:
-            self.window1 = IntermidiateWindow()
-            self.window1.show()
-            self.window1.textEdit.setText(output)
-            self.window1.setWindowTitle("Intermidiate Window")   
+            self.InterWindow = IntermidiateWindow()
+            self.InterWindow.setPath(self.currentPath)
+            self.InterWindow.setCompiler(self.compiler)
+            self.InterWindow.run()
         
-    def number_line(self):
-        self.textEdit.textChanged.connect(self.update_line_numbers)
-        self.line_number_edit = self.textBrowser
-        self.line_number_edit.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+      
+    def numberLine(self):
+        self.textEdit.textChanged.connect(self.updateLineNumbers)
+        self.lineNumberEdit = self.textBrowser
+        self.lineNumberEdit.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
             
-    def update_line_numbers(self):
+    def updateLineNumbers(self):
         text = self.textEdit.toPlainText()
-        line_count = text.count('\n') + 1
-        line_numbers_text = '\n'.join(map(str, range(1, line_count + 1)))
-        self.line_number_edit.setPlainText(line_numbers_text)
+        lineCount = text.count('\n') + 1
+        lineNumbersText = '\n'.join(map(str, range(1, lineCount + 1)))
+        self.lineNumberEdit.setPlainText(lineNumbersText)
 
     def init(self):
-        self.textEdit.verticalScrollBar().valueChanged.connect(self.sync_scroll_bars)
-        self.textBrowser.verticalScrollBar().valueChanged.connect(self.sync_scroll_bars)
+        self.textEdit.verticalScrollBar().valueChanged.connect(self.syncScrollBars)
+        self.textBrowser.verticalScrollBar().valueChanged.connect(self.syncScrollBars)
 
-    def sync_scroll_bars(self):
-        scroll_value = self.sender().value()
-        self.textEdit.verticalScrollBar().setValue(scroll_value)
-        self.textBrowser.verticalScrollBar().setValue(scroll_value)
+    def syncScrollBars(self):
+        scrollValue = self.sender().value()
+        self.textEdit.verticalScrollBar().setValue(scrollValue)
+        self.textBrowser.verticalScrollBar().setValue(scrollValue)
 
     def resizeEvent(self, event):
-        new_size = event.size()
-        self.textEdit.setGeometry(50, 30, new_size.width() - 70, new_size.height() - 120)
-        self.textBrowser.setGeometry(10, 30, 51, new_size.height() - 120)
-        self.pushButton.move(10, new_size.height() - 80)
-        self.pushButton1.move(new_size.width()-100, 0)
-        self.label.move(new_size.width()-150, 0)
+        newSize = event.size()
+        self.textEdit.setGeometry(50, 30, newSize.width() - 70, newSize.height() - 120)
+        self.textBrowser.setGeometry(10, 30, 51, newSize.height() - 120)
+        self.pushButton.move(10, newSize.height() - 80)
+        self.pushButton1.move(newSize.width()-100, 0)
+        self.label.move(newSize.width()-150, 0)
     
 
 

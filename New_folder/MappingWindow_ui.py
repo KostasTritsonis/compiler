@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'DebugWindow.ui'
+## Form generated from reading UI file 'MappingWindow.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.5.1
 ##
@@ -16,14 +16,13 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QLabel, QMainWindow, QMenuBar,
-    QPushButton, QSizePolicy, QStatusBar, QTextEdit,
-    QWidget)
+    QSizePolicy, QStatusBar, QTextEdit, QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(1204, 799)
+        MainWindow.resize(1018, 704)
         MainWindow.setStyleSheet(u"QWidget{\n"
 "background-color:rgb(33,33,33);\n"
 "color:#FFFFFF;\n"
@@ -34,36 +33,24 @@ class Ui_MainWindow(object):
 "}")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
-        self.label = QLabel(self.centralwidget)
-        self.label.setObjectName(u"label")
-        self.label.setGeometry(QRect(568, 10, 71, 20))
-        font = QFont()
-        font.setBold(True)
-        self.label.setFont(font)
-        self.label.setAlignment(Qt.AlignCenter)
         self.textEdit = QTextEdit(self.centralwidget)
         self.textEdit.setObjectName(u"textEdit")
-        self.textEdit.setGeometry(QRect(9, 31, 1181, 681))
-        font1 = QFont()
-        font1.setFamilies([u"Arial"])
-        font1.setPointSize(12)
-        self.textEdit.setFont(font1)
-        self.textEdit.setStyleSheet(u"")
+        self.textEdit.setGeometry(QRect(10, 30, 991, 621))
+        font = QFont()
+        font.setFamilies([u"Arial"])
+        font.setPointSize(12)
+        self.textEdit.setFont(font)
         self.textEdit.setReadOnly(True)
-        self.pushButton = QPushButton(self.centralwidget)
-        self.pushButton.setObjectName(u"pushButton")
-        self.pushButton.setGeometry(QRect(90, 720, 75, 24))
-        self.pushButton.setStyleSheet(u"background-color: rgb(255, 255, 255);\n"
-"color: rgb(0, 0, 0);")
-        self.pushButton_2 = QPushButton(self.centralwidget)
-        self.pushButton_2.setObjectName(u"pushButton_2")
-        self.pushButton_2.setGeometry(QRect(10, 720, 75, 24))
-        self.pushButton_2.setStyleSheet(u"background-color: rgb(255, 255, 255);\n"
-"color: rgb(0, 0, 0);")
+        self.label = QLabel(self.centralwidget)
+        self.label.setObjectName(u"label")
+        self.label.setGeometry(QRect(460, 10, 91, 16))
+        font1 = QFont()
+        font1.setBold(True)
+        self.label.setFont(font1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 1204, 22))
+        self.menubar.setGeometry(QRect(0, 0, 1018, 22))
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QStatusBar(MainWindow)
         self.statusbar.setObjectName(u"statusbar")
@@ -76,8 +63,6 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
-        self.label.setText(QCoreApplication.translate("MainWindow", u"Debugging", None))
-        self.pushButton.setText(QCoreApplication.translate("MainWindow", u"Close", None))
-        self.pushButton_2.setText(QCoreApplication.translate("MainWindow", u"Run Again", None))
+        self.label.setText(QCoreApplication.translate("MainWindow", u"Source Mapping", None))
     # retranslateUi
 

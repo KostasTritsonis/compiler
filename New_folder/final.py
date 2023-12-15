@@ -1,135 +1,257 @@
 import sys
 
-name= ''
-counter,totalSpace,returnedValue=0,0,0
-par,code,instructions,table =[],[],[],[]
-listofCode,results = {},{} 
+name,programName,currentName= '','',''
+returnedValue,flag=0,0
+par,instructions,table =[],[],[]
+results = {}
 
-f = open('intFile.int','r')
-f1 = open('txtFile.txt','r')
-breakpoint = 'None'
+file = open('intFile.int','r')
+file1 = open('txtFile.txt','r')
+breakPoint = sys.argv[1]
 
 def readIntermidiate():
-    lread = f.readline()
-    while lread!='':
-        lread1 = lread.split(' ')
-        lread1.remove('\n')
-        lread1 = list(filter(('_').__ne__, lread1))
-        instructions.append(lread1)
-        lread = f.readline()
+    line = file.readline()
+    while line!='':
+        tempLine = line.split(' ')
+        tempLine.remove('\n')
+        tempLine = list(filter(('_').__ne__, tempLine))
+        instructions.append(tempLine)
+        line = file.readline()
 
-    file_contents = f1.read() 
-    lines = file_contents.strip().split('-')
+    fileContents = file1.read() 
+    lines = fileContents.strip().split('-')
     del lines[-1]
     for i in range(len(lines)):
-        tmp = lines[i].split("\n")
-        if tmp[0] == '':
-            del tmp[0]
-        if tmp[-1] == '':
-            del tmp[-1]
-        table.append(tmp)
+        temp = lines[i].split("\n")
+        if temp[0] == '':
+            del temp[0]
+        if temp[-1] == '':
+            del temp[-1]
+        table.append(temp)
     
-    f.close()
-    f1.close()
+    file.close()
+    file1.close()
 
 def readTable(number):
-    data = eval(table[number][-1])
-    name = data['name']
+    global programName
+    tempData = eval(table[number][-1])
+    name = tempData['name']
     results[name] = {}
-    totalSpace = int(data['nestingLevel'])
-    for i in range(len(table[number])-1): 
+    nestingLevel = int(tempData['nestingLevel'])
+    if nestingLevel == 0:
+        programName = name
+    for i in range(len(table[number])-1):
         data = eval(table[number][i])
-        results[name][data['name']] = 0
-    return totalSpace
-    
-    
-    
+        if data['type'] == 'Var': 
+            results[name][data['name']] = 0
+        if data['type'] == 'function' or data['type'] == 'procedure':
+            results[name][data['name']] = results[data['name']]
+
+  
 def block():
-    global instructions,lines
+    global instructions,lines,flag
+    flag = 0
     i=0
     while  i < len(instructions):
         if instructions[i][0] == 'halt':
-            break  
+            break 
+
         if lines != None:
             lines -=1
             if lines == 0:
                 break
-       
-        j = funCommands(instructions[i])
-        if j!=-1:
-            i=j
+        if programName == instructions[i][1]:
+            flag = 1  
+        if flag == 1:
+            z = funCommands(instructions[i])
+            if z!= -1:
+                i=z
+            else:
+                i+=1
         else:
-            i+=1  
+            i+=1
+        
     return 
-def funCommands(i):
-    global counter,name,par,totalSpace,code,returnedValue
 
-    code.append(i)
+def funCommands(i):
+    global name,par,returnedValue,programName,currentName
+
     if i[0] == 'begin_block':
-        totalSpace = readTable(counter)
         name = i[1]
-        totalSpace+=1   
 
     elif i[0] == ':=':
-        if i[1] in results[name] and results[name][i[1]]!=0:
-         results[name][i[-1]] = results[name][i[1]]
+        temp = checkString(i[1]) 
+
+        if type(temp) is str:
+
+            if (i[1] not in results[programName]) and (i[1] not in results[name]):
+                return -1
+        
+            if (i[1]  in results[programName]) and (i[1] not in results[name]):
+
+                if (i[-1] in results[programName]) and (i[-1] not in results[name]):
+                    results[programName][i[-1]] = results[programName][i[1]]
+                else:
+                    results[name][i[-1]] = results[programName][i[1]]
+            else:
+                if (i[-1] in results[programName]) and (i[-1] not in results[name]):
+                    results[programName][i[-1]] = results[name][i[1]]
+                else:
+                    results[name][i[-1]] = results[name][i[1]]
         else:
-          results[name][i[-1]] = checkString(i[1])  
-            
-    elif i[0] == '+':
-        results[name][i[-1]]  = results[name][i[1]] + results[name][i[2]]
+            if (i[-1] in results[programName]) and (i[-1] not in results[name]):
+                results[programName][i[-1]] = temp
+            else:
+                results[name][i[-1]] = temp
+
+    if i[0] == '+' or i[0] == '/' or i[0] == '-' or i[0] == '*':
+        op1 = checkString(i[1])
+        op2 = checkString(i[2])
+
         
-    elif i[0] == '/':
-        if results[name][i[1]] != 0 and results[name][i[2]] != 0:
-            results[name][i[-1]]  = results[name][i[1]] / results[name][i[2]]
         
-    elif i[0] == '-':
-        results[name][i[-1]]  = results[name][i[1]] - results[name][i[2]]
-        
-    elif i[0] == '*':
-        results[name][i[-1]]  = results[name][i[1]] * results[name][i[2]]
-        
+        if (i[-1] in results[programName]) and (i[-1] not in results[name]):
+
+            if type(op1) is str:
+                if (i[1] not in results[programName]) and (i[1] not in results[name]):
+                    return -1
+                if (i[1] in results[programName]) and (i[1] not in results[name]):
+                    op1 = results[programName][i[1]]
+                else:
+                    op1 = results[name][i[1]]
+
+            if type(op2) is str:
+                if (i[2] not in results[programName]) and (i[2] not in results[name]):
+                    return -1
+                if (i[2] in results[programName]) and (i[2] not in results[name]):
+                    op2 = results[programName][i[2]]
+                else:
+                    op2 = results[name][i[2]]
+
+            if i[0] == '+':
+               results[programName][i[-1]]  = op1 + op2
+                
+            elif i[0] == '/':
+                if op1 != 0 and op2 != 0:
+                    results[programName][i[-1]]  = op1 / op2
+                
+            elif i[0] == '-':
+                results[programName][i[-1]]  = op1 - op2
+                
+            elif i[0] == '*':
+                results[programName][i[-1]]  = op1 * op2
+        else:
+
+            if type(op1) is str:
+                if (i[1] not in results[programName]) and (i[1] not in results[name]):
+                    return -1
+                if (i[1] in results[programName]) and (i[1] not in results[name]):
+                    op1 = results[programName][i[1]]
+                else:
+                    op1 = results[name][i[1]]
+
+            if type(op2) is str:
+                if (i[2] not in results[programName]) and (i[2] not in results[name]):
+                    return -1
+                if (i[2] in results[programName]) and (i[2] not in results[name]):
+                    op2 = results[programName][i[2]]
+                else:
+                    op2 = results[name][i[2]]
+
+            if i[0] == '+':
+                results[name][i[-1]]  = op1 + op2
+                
+            elif i[0] == '/':
+                if op1 != 0 and op2 != 0:
+                    results[name][i[-1]]  = op1 / op2
+                
+            elif i[0] == '-':
+                results[name][i[-1]]  = op1 - op2
+                
+            elif i[0] == '*':
+                results[name][i[-1]]  = op1 * op2
+
+
+
     elif i[0] == 'out':
-       print('The value of {a} is {b}'.format(a=i[1],b=results[name][i[1]]))
+
+        temp = checkString(i[1]) 
+
+        if type(temp) is str:
+            if (i[1] not in results[programName]) and (i[1] not in results[name]):
+                return -1
+            
+            if (i[1]  in results[programName]) and (i[1] not in results[name]):
+                temp = results[programName][i[1]]
+            else:
+                temp = results[name][i[1]]
+                
+        print('The value of {a} is {b}'.format(a=i[1],b=temp))
         
     elif i[0] == 'inp':
         print("Give input for {value}:".format(value=i[1]))
         temp1 =  sys.stdin.readline().strip()
-        results[name][i[1]]  = checkString(temp1)
+        if (i[1] not in results[programName]) and (i[1] not in results[name]):
+                return -1
+        
+        if (i[1] in results[programName]) and (i[1] not in results[name]):
+            results[programName][i[1]]  = checkString(temp1)
+        else:
+            results[name][i[1]]  = checkString(temp1)
         
     elif i[0] == 'retv':
         if returnedValue != 0:
-            results[name][returnedValue] = results[name][i[1]]
+            if (i[1] not in results[programName]) and (i[1] not in results[name]):
+                return -1
+            
+            if (i[1] in results[programName]) and (i[1] not in results[name]):
+                results[currentName][returnedValue] = results[programName][i[1]]
+            else:
+                results[currentName][returnedValue] = results[name][i[1]]
         
-    elif i[0] == 'end_block':
-        del code[0]
-        del code[-1]
-        listofCode[name] = code
-        counter+=1
-        code=[]
-        
-    elif i[0] == '=' or  i[0] == '<' or  i[0] == '>':
+    elif i[0] == '=' or  i[0] == '<' or  i[0] == '>' or i[0] == '<>' or i[0] == '<=' or i[0] == '>=':
 
-        i[1] = checkString(i[1])
-        i[2] = checkString(i[2])
+        op1 = checkString(i[1])
+        op2 = checkString(i[2])
 
-        if type(i[1]) is str:
-            i[1] = results[name][i[1]]
+        if type(op1) is str:
+            if (i[1] not in results[programName]) and (i[1] not in results[name]):
+                return -1
+            
+            if (i[1] in results[programName]) and (i[1] not in results[name]):
+                op1 = results[programName][i[1]]
+            else:
+                op1 = results[name][i[1]]
+            
 
-        if type(i[2]) is str:
-            i[2] = results[name][i[2]]
+        if type(op2) is str:
+            if (i[2] not in results[programName]) and (i[2] not in results[name]):
+                return -1
+            
+            if (i[2] in results[programName]) and (i[2] not in results[name]):
+                op2 = results[programName][i[2]]
+            else:
+                op2 = results[name][i[2]]
        
         if i[0] == '=':
-            if i[1] == i[2]:
+            if op1 == op2:
                 return int(i[-1])-1
         elif i[0] == '<':
-            if i[1] < i[2]:
+            if op1 < op2:
                 return int(i[-1])-1
         elif i[0] == '>':
-            if i[1] > i[2]:
+            if op1 > op2:
+                return int(i[-1])-1   
+        elif i[0] == '<>':
+            if op1 != op2:
                 return int(i[-1])-1
-        
-        
+        elif i[0] == '<=':
+            if op1 <= op2:
+                return int(i[-1])-1
+        elif i[0] == '>=':
+            if op1 >= op2:
+                return int(i[-1])-1
+                
     elif i[0] == 'par':
         if i[2] == 'RET':
             returnedValue = i[1]
@@ -140,27 +262,34 @@ def funCommands(i):
         return int(i[-1])-1   
     
     elif i[0] == 'call':
-        for parameter in par:
-            if parameter[1] == 'CV':
-                for variable in results[i[1]].keys():
-                    if variable == parameter[0]:
-                        results[i[1]][variable] = results[name][variable]
+        currentName = i[1]
+        if i[1] not in results:
+            print('There is not function with name:',i[1])
+            exit(1)
 
-        for i in listofCode[i[1]]:
-            funCommands(i)
+        for parameter in par:
+            results[i[1]][parameter[0]] = results[name][parameter[0]]
+
+        begin = ['begin_block',i[1]]
+        end = ['end_block',i[1]]
+        j=instructions.index(begin)
+        while j < instructions.index(end):
+            z = funCommands(instructions[j])
+            if z!= -1:
+                j=z
+            else:
+                j+=1
 
         for parameter in par:
             if parameter[1] == 'REF':
-                for variable in results[i[1]].keys():
-                    if variable == parameter[0]:
-                        results[name][variable] = results[i[1]][variable]
+                results[name][parameter[0]] = results[i[1]][parameter[0]]
+                    
 
         par = []
-                
-    return -1
-            
     
-   
+    return -1
+
+
 def checkString(string):
     if string.isdigit():
         return int(string)
@@ -170,22 +299,18 @@ def checkString(string):
             return float(string)
         except ValueError:
             return string
-        
-        
+            
 def printTable():
     print('-')
     for key, value in results.items():
         print(key, ":", value)
         
- 
- 
 def checkBreakpoint():
-    global lines,breakpoint
+    global lines,breakPoint
     
-    if breakpoint != 'None':
-        print(breakpoint)
-        breakpoint = int(breakpoint)
-        lines = breakpoint+1
+    if breakPoint != 'None':
+        breakPoint = int(breakPoint)
+        lines = breakPoint+1
     else:
         lines = None        
 
@@ -193,7 +318,9 @@ def checkBreakpoint():
 if __name__ == '__main__':
     readIntermidiate()
     checkBreakpoint()
+    for i in range(len(table)):
+        readTable(i)
     block()
-    if breakpoint != 'None':
+    if breakPoint != 'None':
         printTable()
-    print(results)
+    print(results[programName])
